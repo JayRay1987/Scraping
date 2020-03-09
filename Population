@@ -1,0 +1,45 @@
+from bs4 import BeautifulSoup
+import requests
+import csv
+
+page_link='http://worldpopulationreview.com/states/'
+
+html_page=requests.get(page_link,timeout=5)
+
+page_content=BeautifulSoup(html_page.content,"html.parser")
+
+print(page_content)
+
+print(page_content.prettify())
+
+my_h1_tag=page_content.find("h1")
+
+print(my_h1_tag.text)
+
+tables=page_content.find_all("table")
+
+print(len(tables[0]))
+
+mytable=tables[0]
+
+print(mytable.prettify())
+
+csvfile=open('population_us_state_18','w')
+
+writer=csv.writer(csvfile, delimiter=',', lineterminator='\n', quotechar='"')
+
+writer.writerow(["Rank","State","2018 Population","2018 Growth","% of US"])
+
+trs=mytable.find_all("tr")
+
+for rows in trs[1:]:
+    cols=rows.find_all(['th','td'])
+    rank=cols[0].text
+    state=cols[1].text
+    population=cols[2].text
+    growth=cols[3].text
+    percent=cols[4].text
+    print(rank,state,population,growth,percent)
+    writer.writerow([rank,state,population,growth,percent])
+
+csvfile.close()
